@@ -1,0 +1,6 @@
+#!/bin/bash
+
+export DATABASE_USER="${DATABASE_USER:-postgres}"
+export DATABASE_PASSWORD="${DATABASE_PASSWORD:-postgres}"
+export DATABASE_HOST="${DATABASE_HOST:-0.0.0.0}"
+export DATABASE_URL="dbname=rtsw user=$DATABASE_USER password=$DATABASE_PASSWORD host=$DATABASE_HOST"

@@ -1,0 +1,20 @@
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "rtsw"
+version = "0.0.1"
+description = "Python packages and a web app for the Real-Time Solar Wind project"
+dependencies = [
+    "fastapi",
+    "uvicorn[standard]",
+    "psycopg[binary]",
+    "httpx",
+    "pydantic",
+    "jinja2",
+]
+optional-dependencies = { "dev" = ["pytest", "pytest-cov", "flake8", "black"] }
+
+[tool.setuptools]
+packages = ["rtsw", "rtsw.persist", "rtsw.web", "rtsw.shared"]

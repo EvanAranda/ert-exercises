@@ -1,0 +1,3 @@
+# RHEL 7 RPM Mirror
+
+The script `mirror.template` demonstrates creating an RHEL 7 RPM mirror running on an EC2 instance. The mirror is set up using the commands defined in `configureRepo`. An Apache web server is started to serve the mirror directory at `/var/www/html/rhel-7-server-rpms`. Next, another EC2 instance, `ClientInstance` is provisioned to demonstrate using the custom mirror. The file `/etc/yum.repos.d/my_mirror.repo` is created to point to the mirror. Finally, the commands on that instance are run. `0_disable_other_repos` configures yum to only use the custom mirror. `1_install_from_mirror` installs a package.
