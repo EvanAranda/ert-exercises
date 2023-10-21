@@ -39,6 +39,9 @@ int main()
     // loop 2 vars
     double exp1arg, sigma, exp2arg;
 
+    // loop 3 vars
+    double tmp2, tmp3;
+
     for (fptilde = 0.; fptilde <= 10.; fptilde += 0.01)
     {
         fpt = MAX(fptilde, fptildemin);
@@ -50,13 +53,16 @@ int main()
 
         for (f = -5.; f <= 5.; f += 0.01)
         {
-            tmp1 = alpha * pow(f, -5);
+            tmp1 = alpha / (f * f * f * f * f);
 
             for (fp = 0.; fp <= 10.; fp += 0.01)
             {
-                exp1arg = -1.25 * pow((f / fp), -4);
+                tmp2 = f / fp;
+                tmp3 = (f - fp) / (sigma * fp);
+
+                exp1arg = -1.25 / (tmp2 * tmp2 * tmp2 * tmp2);
                 sigma = (f <= fp) * sigma_a + (f > fp) * sigma_b;
-                exp2arg = -0.5 * pow((f - fp) / (sigma * fp), 2);
+                exp2arg = -0.5 * tmp3 * tmp3;
 
                 S = tmp1 * exp(exp1arg) * pow(gamma, exp(exp2arg));
             }
