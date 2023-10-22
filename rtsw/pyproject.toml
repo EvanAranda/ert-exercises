@@ -13,6 +13,7 @@ dependencies = [
     "httpx",
     "pydantic",
     "jinja2",
+    "croniter",
 ]
 optional-dependencies = { "dev" = ["pytest", "pytest-cov", "flake8", "black"] }
 

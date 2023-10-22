@@ -24,10 +24,10 @@ Contains a simple cli program to manage database migrations on a Postgresql data
 
 ## `rtsw.persist.query`
 
-Contains a script to run the `fetch_hourly_rtsw_json()` method on a recurring schedule with customizable frequency. 
+Contains a script to run the `fetch_hourly_rtsw_json()` method on a recurring schedule with customizable frequency. Alternatively, the script can be scheduled with something like `cron` when the `RTSW_SYNC_ONCE` flag is enabled.
 
 Environment variables are used to configure the script:
-- `RTSW_SYNC_FREQ`: Time string with format (HH:MM:SS). Defaults to "00:01:05".
+- `RTSW_SYNC_FREQ`: Cron schedule string.
 - `RTSW_SYNC_ONCE`: If set to "true", the script will only query the rtsw api once and exit. Defaults to "false".
 
 > ```bash
