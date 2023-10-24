@@ -3,7 +3,7 @@ import os
 import psycopg as pg
 from psycopg.rows import dict_row
 
-from rtsw.shared import HourlyRtswPoint, fetch_hourly_rtsw_json
+from rtsw.shared import RtswDataPoint, fetch_hourly_rtsw_json
 
 
 def connect_db(db_url: str) -> pg.Connection:

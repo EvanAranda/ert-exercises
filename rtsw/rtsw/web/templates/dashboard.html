@@ -1,15 +1,37 @@
-<!DOCTYPE html>
-<html lang="en">
+{% extends "base.html" %}
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport"
-          content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-</head>
+{% set table_headers = dict(temperature='temp', density='&rho;', time_tag='time', propagated_time_tag='prop_time') %}
 
-<body>
-
-</body>
-
-</html>
+{% block content %}
+<div class="d-flex align-items-stretch vh-100">
+    <div class="flex-grow-0 overflow-auto">
+        {% if points|length > 0 %}
+        {% set keys = points[0].model_fields.keys() %}
+        <table class="table table-sm"
+               style="font-size: 0.8rem;">
+            <thead>
+                <tr>
+                    {% for k in keys %}
+                    <th scope="col">{{table_headers.get(k, k)|safe}}</th>
+                    {% endfor %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for p in points %}
+                <tr>
+                    {% for k in keys %}
+                    <td>{{ p[k] or "-" }}</td>
+                    {% endfor %}
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% endif %}
+    </div>
+    <div class="flex-grow-1 overflow-auto p-2">
+        {% for chart in charts %}
+        {{ chart|safe }}
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

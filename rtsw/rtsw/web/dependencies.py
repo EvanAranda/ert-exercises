@@ -4,14 +4,13 @@ from typing import Annotated
 import psycopg as pg
 from fastapi import Depends
 
-from rtsw.persist import connect_db_from_env
-from rtsw.persist.query import get_rtsw_points
-from rtsw.shared import HourlyRtswPoint
+from rtsw.persist import connect_db_from_env, query
+from rtsw.shared import RtswDataPoint
 
 
-@cache
-def _get_db() -> pg.Connection:
-    return connect_db_from_env()
+def _get_db():
+    with connect_db_from_env() as conn:
+        yield conn
 
 
 Database = Annotated[pg.Connection, Depends(_get_db)]
@@ -27,4 +26,8 @@ class _db_func:
         return self._f(db, *self._args, **self._kwargs)
 
 
-RtswPoints = Annotated[list[HourlyRtswPoint], Depends(_db_func(get_rtsw_points))]
+def get_points(db: Database, limit: int = 1000):
+    return query.get_rtsw_points(db, limit)
+
+
+RtswPoints = Annotated[list[RtswDataPoint], Depends(get_points)]

@@ -4,11 +4,6 @@
 
 Defines several commands from installing dependencies to running applications. See other sections for more information on available commands that are specific to each package.
 
-> ```bash
-> # Create virtual environment and install dependencies
-> ./tasks.sh install
-> ```
-
 
 ## `rtsw.shared`
 
@@ -22,6 +17,17 @@ Contains a simple cli program to manage database migrations on a Postgresql data
 > ./tasks.sh db_manage <command> <args>
 > ```
 
+### Setup database
+> ```bash
+> ./tasks.sh db_manage forward --all
+> ```
+
+### Rollback database
+> ```bash
+> ./tasks.sh db_manage rollback --all
+> ```
+
+
 ## `rtsw.persist.query`
 
 Contains a script to run the `fetch_hourly_rtsw_json()` method on a recurring schedule with customizable frequency. Alternatively, the script can be scheduled with something like `cron` when the `RTSW_SYNC_ONCE` flag is enabled.
@@ -29,9 +35,14 @@ Contains a script to run the `fetch_hourly_rtsw_json()` method on a recurring sc
 Environment variables are used to configure the script:
 - `RTSW_SYNC_FREQ`: Cron schedule string.
 - `RTSW_SYNC_ONCE`: If set to "true", the script will only query the rtsw api once and exit. Defaults to "false".
+- `RTSW_SYNC_MAX_RETRY`: Number of times to retry the query if it fails. Defaults to 3.
 
 > ```bash
-> ./tasks.sh sync_hourly_rtsw
+> # Syncs newest data on a schedule
+> ./tasks.sh sync
+>
+> # Syncs full data (/products/geospace/propagated-solar-wind.json)
+> ./tasks.sh sync --full
 > ```
 
 ## `rtsw.web`
@@ -44,9 +55,17 @@ Stack:
 - Templating: Jinja2
 - Frontend: Bootstrap 5 + HTMX
 
+### Getting started
+
 > ```bash
 > # Install dependencies if not done so
 > ./tasks.sh install
+>
+> # Setup database if not done so
+> ./tasks.sh db_manage forward --all
+>
+> # Sync some data
+> ./tasks.sh sync --full
 >
 > # Run the web app using uvicorn and start needed services
 > ./tasks.sh start_services

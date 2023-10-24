@@ -19,7 +19,7 @@ _setup_venv() {
         return
     fi
 
-    python -m venv $VENV_DIR
+    python3.12 -m venv $VENV_DIR
 }
 
 _activate_venv() {
@@ -33,10 +33,10 @@ install() {
     pip install --force-reinstall -e ".[$ENV]"
 }
 
-sync_hourly_rtsw() {
+sync() {
     _load_env
     _activate_venv
-    python -m rtsw.persist.query
+    python -m rtsw.persist.query "$@"
 }
 
 db_manage() {
