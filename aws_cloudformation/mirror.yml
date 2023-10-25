@@ -42,6 +42,9 @@ Resources:
           sudo yum -y install python3-pip
           sudo pip3 install https://s3.amazonaws.com/cloudformation-examples/aws-cfn-bootstrap-py3-latest.tar.gz
 
+          # install deps (here bc it's not working in the configset)
+          sudo yum -y install yum-utils createrepo httpd
+
           sudo /usr/local/bin/cfn-init -v --stack ${AWS::StackName} --resource RpmPackageMirror --configsets installAndRun --region ${AWS::Region}
           sudo /usr/local/bin/cfn-signal -e $? --stack ${AWS::StackName} --resource RpmPackageMirror --region ${AWS::Region}
     Metadata:
@@ -49,13 +52,8 @@ Resources:
         configSets:
           installAndRun:
             - install
-            # - configureRepo
+            - configureRepo
         install:
-          packages:
-            yum:
-              yum-utils: []
-              createrepo: []
-              httpd: []
           services:
             sysvinit:
               httpd:
@@ -64,10 +62,10 @@ Resources:
         configureRepo:
           commands:
             0_reposync:
-              command: sudo reposync --gpgcheck -l --repoid=rhel-7-server-rhui-rh-common-rpms --download_path=/var/www/html/
+              command: "sudo reposync --gpgcheck -l --repoid=rhel-7-server-rhui-rh-common-rpms --download_path=/var/www/html/"
             1_createrepo:
-              cwd: /var/www/html/rhel-7-server-rhui-rh-common-rpms
-              command: sudo createrepo -v /var/www/html/rhel-7-server-rhui-rh-common-rpms
+              cwd: "/var/www/html/rhel-7-server-rhui-rh-common-rpms"
+              command: "sudo createrepo -v /var/www/html/rhel-7-server-rhui-rh-common-rpms"
 
   RpmPackageMirrorSecurityGroup:
     Type: AWS::EC2::SecurityGroup
