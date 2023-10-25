@@ -1,0 +1,130 @@
+Parameters:
+  KeyName:
+    Description: EC2 Key Pair for SSH access,
+    Type: AWS::EC2::KeyPair::KeyName
+  SSHLocation:
+    AllowedPattern: (\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})/(\d{1,2})
+    ConstraintDescription: must be a valid IP CIDR range of the form x.x.x.x/x.
+    Default: 0.0.0.0/0
+    Description: The IP address range that can be used to SSH to the EC2 instances
+    MaxLength: "18"
+    MinLength: "9"
+    Type: String
+  RHELUser:
+    Description: The username for the RHEL subscription
+    Type: String
+    NoEcho: true
+  RHELPassword:
+    Description: The password for the RHEL subscription
+    Type: String
+    NoEcho: true
+
+Resources:
+  RpmPackageMirror:
+    Type: AWS::EC2::Instance
+    CreationPolicy:
+      ResourceSignal:
+        Timeout: PT10M
+    Properties:
+      ImageId: ami-0dd38e30236fe14ea
+      InstanceType: t2.micro
+      KeyName: !Ref KeyName
+      SecurityGroups:
+        - !Ref RpmPackageMirrorSecurityGroup
+      UserData:
+        Fn::Base64: !Sub |
+          #!/bin/bash -xe
+
+          # Register the system with Red Hat Subscription Manager
+          sudo subscription-manager register --username ${RHELUser} --password ${RHELPassword} --auto-attach
+
+          # install pip to get aws helper scripts
+          sudo yum -y install python3-pip
+          sudo pip3 install https://s3.amazonaws.com/cloudformation-examples/aws-cfn-bootstrap-py3-latest.tar.gz
+
+          sudo /usr/local/bin/cfn-init -v --stack ${AWS::StackName} --resource RpmPackageMirror --configsets installAndRun --region ${AWS::Region}
+          sudo /usr/local/bin/cfn-signal -e $? --stack ${AWS::StackName} --resource RpmPackageMirror --region ${AWS::Region}
+    Metadata:
+      AWS::CloudFormation::Init:
+        configSets:
+          installAndRun:
+            - install
+            # - configureRepo
+        install:
+          packages:
+            yum:
+              yum-utils: []
+              createrepo: []
+              httpd: []
+          services:
+            sysvinit:
+              httpd:
+                enabled: true
+                ensureRunning: true
+        configureRepo:
+          commands:
+            0_reposync:
+              command: sudo reposync --gpgcheck -l --repoid=rhel-7-server-rhui-rh-common-rpms --download_path=/var/www/html/
+            1_createrepo:
+              cwd: /var/www/html/rhel-7-server-rhui-rh-common-rpms
+              command: sudo createrepo -v /var/www/html/rhel-7-server-rhui-rh-common-rpms
+
+  RpmPackageMirrorSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Enable HTTP access via port 80
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 22
+          ToPort: 22
+          CidrIp: !Ref SSHLocation
+
+  # ClientInstance:
+  #   Type: AWS::EC2::Instance
+  #   CreationPolicy:
+  #     ResourceSignal:
+  #       Timeout: PT5M
+  #   Properties:
+  #     ImageId: !FindInMap [RegionMap, !Ref "AWS::Region", AMI]
+  #     InstanceType: t1.micro
+  #     KeyName: !Ref KeyName
+  #     SecurityGroups:
+  #       - !Ref ClientInstanceSecurityGroup
+  #     UserData:
+  #       Fn::Base64: !Sub |
+  #         #!/bin/bash -xe
+  #         yum install -y aws-cfn-bootstrap
+  #         /opt/aws/bin/cfn-init -v --stack ${AWS::StackName} --resource ClientInstance --region ${AWS::Region}
+  #         /opt/aws/bin/cfn-signal -e $? --stack ${AWS::StackName} --resource ClientInstance --region ${AWS::Region}
+  #   Metadata:
+  #     AWS::CloudFormation::Init:
+  #       config:
+  #         files:
+  #           /etc/yum.repos.d/my_mirror.repo:
+  #             content: !Sub |
+  #               [my_mirror]
+  #               name=Red Hat Enterprise Linux 7 Server MIRROR
+  #               baseurl=http://${RpmPackageMirror.PublicDnsName}/rhel-7-server-rpms
+  #               enabled=1
+  #               gpgcheck=0
+  #         commands:
+  #           0_disable_other_repos:
+  #             command: |
+  #               yum-config-manager --disable \*
+  #               yum-config-manager --enable my_mirror
+  #           1_install_from_mirror:
+  #             command: yum install -y yum-utils
+
+  # ClientInstanceSecurityGroup:
+  #   Type: AWS::EC2::SecurityGroup
+  #   Properties:
+  #     GroupDescription: Enable SSH access via port 22
+  #     SecurityGroupIngress:
+  #       - IpProtocol: tcp
+  #         FromPort: 22
+  #         ToPort: 22
+  #         CidrIp: !Ref SSHLocation
