@@ -5,9 +5,10 @@ The script `mirror.template` demonstrates creating an RHEL 7 RPM mirror running 
 ## How to run
 
 ### Prereqs: 
+- Have an RHEL subscription available (I created a free developer subscription)
 - Create your aws session
 - Create a keypair in the region (image is for us-east-2).
-   - Name it "temp-key-pair" to use the default name expected by the script, otherwise you'll have to provide the keyname as an environment variable.
+  - Name it "temp-key-pair" to use the default name expected by the script, otherwise you'll have to provide the keyname as an environment variable.
 
 ```bash
 

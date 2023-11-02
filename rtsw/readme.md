@@ -13,41 +13,43 @@ Common data types and methods used in other packages. Includes a datatype to rep
 
 Contains a simple cli program to manage database migrations on a Postgresql database. This allows the peristence layer to be updated in a controlled and reproducible way for additional data sources.
 
-> ```bash
-> ./tasks.sh db_manage <command> <args>
-> ```
+```bash
+./tasks.sh db_manage <command> <args>
+```
 
 ### Setup database
-> ```bash
-> ./tasks.sh db_manage forward --all
-> ```
+```bash
+./tasks.sh db_manage forward --all
+```
 
 ### Rollback database
-> ```bash
-> ./tasks.sh db_manage rollback --all
-> ```
+```bash
+./tasks.sh db_manage rollback --all
+```
 
 
 ## `rtsw.persist.query`
 
-Contains a script to run the `fetch_hourly_rtsw_json()` method on a recurring schedule with customizable frequency. Alternatively, the script can be scheduled with something like `cron` when the `RTSW_SYNC_ONCE` flag is enabled.
+Contains a script to run the `fetch_hourly_rtsw_json()` method on a recurring schedule with customizable frequency. Alternatively, the script can be scheduled with something like `cron` when the `RTSW_SYNC_ONCE` flag is set so the remote data is fetch only once by the script instead of in a loop.
 
 Environment variables are used to configure the script:
 - `RTSW_SYNC_FREQ`: Cron schedule string.
 - `RTSW_SYNC_ONCE`: If set to "true", the script will only query the rtsw api once and exit. Defaults to "false".
 - `RTSW_SYNC_MAX_RETRY`: Number of times to retry the query if it fails. Defaults to 3.
 
-> ```bash
-> # Syncs newest data on a schedule
-> ./tasks.sh sync
->
-> # Syncs full data (/products/geospace/propagated-solar-wind.json)
-> ./tasks.sh sync --full
-> ```
+```bash
+# Syncs newest data on a schedule
+./tasks.sh sync
+
+# Syncs full data (/products/geospace/propagated-solar-wind.json)
+./tasks.sh sync --full
+```
 
 ## `rtsw.web`
 
 Contains a web app with a dashboard to display the RTSW data. 
+
+![Screenshot of web app](./images/dashboard.png)
 
 Stack:
 - Database: Postgresql

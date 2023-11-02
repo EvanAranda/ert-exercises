@@ -36,6 +36,8 @@ def sync_new_data():
 
                 if once:
                     break
+
+                failed_count = 0
             except Exception as e:
                 failed_count += 1
                 if failed_count > max_retry:
